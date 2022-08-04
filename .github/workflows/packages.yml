@@ -1,0 +1,27 @@
+name: Packages
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # every day at 00:00 UTC
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to github registry
+        run: |
+          echo ${{ secrets.DOCKER_TOKEN }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+        shell: bash
+
+      - name: Building packages
+        run: |
+          bash .github/scripts/build.sh "${{ secrets.DOCKER_USER }}"
+
+      - name: Publishing packages
+        run: |
+          bash .github/scripts/publish.sh "${{ secrets.DOCKER_USER }}"
